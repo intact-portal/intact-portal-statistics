@@ -1,6 +1,8 @@
 import argparse
 import sys
 import csv
+import urllib.request
+
 import neo4j
 from neo4j import GraphDatabase
 from collections import OrderedDict
@@ -102,9 +104,9 @@ def queries():
     method_distribution_response = connection.transaction_session()
     method_distribution_result = process_methods(method_distribution_response)
 
-    ########################
+    #######################
     # TOP 10 SPECIES COVER #
-    ########################
+    #######################
     # language=cypher
     species_cover_query = "MATCH (o:GraphOrganism)--(ge:GraphProtein) " \
                           "WHERE Not ge.uniprotName contains \"-PRO\" " \
@@ -267,20 +269,13 @@ def process_methods(method_distribution_response):
 
 def process_proteome_coverage(species_cover_response):
     species_cover_data = OrderedDict()
-    proteome_reference = {"Homo sapiens": [20360], "Mus musculus": [17085],
-                          "Arabidopsis thaliana (Mouse-ear cress)": [16058],
-                          "Saccharomyces cerevisiae": [6050],
-                          "Escherichia coli (strain K12)": [4390],
-                          "Drosophila melanogaster (Fruit fly)": [3625],
-                          "Rattus norvegicus (Rat)": [8133],
-                          "Caenorhabditis elegans": [4305],
-                          "Synechocystis sp. (strain PCC 6803  Kazusa)": [1085],
-                          "Campylobacter jejuni subsp. jejuni serotype O:2 (strain NCTC 11168)": [467],
-                          "SARS-CoV-2": [16]}
+    proteome_reference = {}
 
     for organism in species_cover_response:
         organism_name = organism.values()[2].replace('/','')
-        coverage = proteome_compare(organism.values()[1], f'reference_files/{organism_name}_uniprot.csv')
+        reference = reference_proteome(organism_name)
+        proteome_reference[organism_name] = [len(reference)]
+        coverage = proteome_compare(organism.values()[1], reference)
         species_cover_data[organism_name] = [coverage]
     for organism in species_cover_data.keys():
         percentage = species_cover_data[organism][0] / proteome_reference[organism][0] * 100
@@ -311,13 +306,26 @@ def process_summary_table(summary_table_response):
         writer.writerows(summary_data)
     return summary_data
 
-def proteome_compare(result, reference):
-    up_proteins = set()
-    intact_proteins = set()
+def reference_proteome(organism):
+    species_id = {"Homo sapiens": 'UP000005640', "Mus musculus": 'UP000000589',
+                          "Arabidopsis thaliana (Mouse-ear cress)": 'UP000006548',
+                          "Saccharomyces cerevisiae": 'UP000002311',
+                          "Escherichia coli (strain K12)": 'UP000000625',
+                          "Drosophila melanogaster (Fruit fly)": 'UP000000803',
+                          "Rattus norvegicus (Rat)": 'UP000002494',
+                          "Caenorhabditis elegans": 'UP000001940',
+                          "Synechocystis sp. (strain PCC 6803  Kazusa)": 'UP000001425',
+                          "Campylobacter jejuni subsp. jejuni serotype O:2 (strain NCTC 11168)": 'UP000000799',
+                          "SARS-CoV-2": 'UP000464024'}
+    id = species_id[organism]
+    with urllib.request.urlopen(f'https://www.uniprot.org/uniprot/?query=proteome:{id}%20reviewed:yes&format=tab') as url_file:
+        proteins = [i.decode('utf-8').split('\t')[0] for i in url_file]
+        proteins.pop(0)
+    return proteins
 
-    with open(reference) as up_file:
-        for line in up_file:
-            up_proteins.add(line.replace('\ufeff', '').replace('\n', ''))
+def proteome_compare(result, reference):
+    up_proteins = set(reference)
+    intact_proteins = set()
 
     for x in result:
         intact_proteins.add(re.sub('\-[0-9]', '', x).replace('\ufeff',''))
@@ -325,20 +333,17 @@ def proteome_compare(result, reference):
     return(len(intact_proteins.intersection(up_proteins)))
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--database', help='Provide the neo4j database to connect to.')
-    parser.add_argument('--user', help='Provide the user name for the database connection.')
-    parser.add_argument('--pw', help='Provide the password for the database connection.')
-    args = parser.parse_args()
-    connection = Connector(args.database, args.user, args.pw)
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument('--database', help='Provide the neo4j database to connect to.')
+    # parser.add_argument('--user', help='Provide the user name for the database connection.')
+    # parser.add_argument('--pw', help='Provide the password for the database connection.')
+    # args = parser.parse_args()
+    # connection = Connector(args.database, args.user, args.pw)
 
-    # "https://www.uniprot.org/uniprot/?query=proteome:UP000005640%20reviewed:yes&format=tab"
-    # DATABASE = "bolt://intact-neo4j-001.ebi.ac.uk:7687"
-    # USER = "neo4j"
-    # PW = "neo4j123"
-    # GIT_REP = "statistics_dev"
-    # connection = Connector(DATABASE, USER, PW)
-
-
-    # queries()
-    # connection.close()
+    DATABASE = "bolt://intact-neo4j-001.ebi.ac.uk:7687"
+    USER = "neo4j"
+    PW = "neo4j123"
+    GIT_REP = "statistics_dev"
+    connection = Connector(DATABASE, USER, PW)
+    queries()
+    connection.close()
