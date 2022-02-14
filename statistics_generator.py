@@ -1,3 +1,5 @@
+import argparse
+import sys
 import csv
 import neo4j
 from neo4j import GraphDatabase
@@ -185,7 +187,7 @@ def process_interactions(n_ary_response, binary_response, true_binary_response):
         # true_binary_values[tb_record[0].iso_format()] = true_binary
         interaction_data[tb_record[0].iso_format()][3] = true_binary
 
-    with open('./src/assets/data-files/interactions.csv', 'w') as interactions_file:
+    with open('output_data/interactions.csv', 'w') as interactions_file:
         writer1 = csv.writer(interactions_file)
         writer1.writerow(['Date', 'ary_interactions_over_time', 'All_interactions_after_spoke_expension', 'All_interaction_reports', 'Binary_interaction_reports'])
         previous = [0, 0, 0, 0]
@@ -206,7 +208,7 @@ def process_pub_exp(publication_experiment_response):
         experiments += pub_exp.values()[2]
         exp_pub_data[pub_exp.values()[0].iso_format()] = [publications, experiments]
 
-    with open('./src/assets/data-files/publication_experiment.csv', 'w') as publication_experiment_file:
+    with open('output_data/publication_experiment.csv', 'w') as publication_experiment_file:
         writer = csv.writer(publication_experiment_file)
         writer.writerow(['Date', 'Publications', 'Experiments'])
         for key, value in exp_pub_data.items():
@@ -235,7 +237,7 @@ def process_curations(curation_request_response, author_submission_response, all
         all += all_record[1]
         curation_data[datum][2] = all
 
-    with open('./src/assets/data-files/curation_distribution.csv', 'w') as curation_distribution_file:
+    with open('output_data/curation_distribution.csv', 'w') as curation_distribution_file:
         writer3 = csv.writer(curation_distribution_file)
         writer3.writerow(['Date', 'Curation_requested_by_author', 'Author_submitted', 'Curator_choice/Funding_priority'])
         previous = [0, 0, 0]
@@ -256,7 +258,7 @@ def process_methods(method_distribution_response):
         values[1] = method.values()[1].capitalize()
         method_distribution_data.append(values)
 
-    with open('./src/assets/data-files/method_distribution_human_pub.csv', 'w') as method_distribution_file:
+    with open('output_data/method_distribution_human_pub.csv', 'w') as method_distribution_file:
         writer = csv.writer(method_distribution_file)
         writer.writerow(['Method_ID', 'label', 'amount'])
         writer.writerows(method_distribution_data)
@@ -285,7 +287,7 @@ def process_proteome_coverage(species_cover_response):
         proteome_reference[organism].append("{:.2f}".format(percentage))
         proteome_reference[organism].append(species_cover_data[organism][0])
 
-    with open('./src/assets/data-files/species_cover.csv', 'w') as species_cover_file:
+    with open('output_data/species_cover.csv', 'w') as species_cover_file:
         writer = csv.writer(species_cover_file)
         writer.writerow(['Organism', 'Reference', 'Percentage', 'Proteins'])
         for key, value in proteome_reference.items():
@@ -303,7 +305,7 @@ def process_summary_table(summary_table_response):
     for feature in summary_table_response:
         summary_data.append(feature.values())
 
-    with open('./src/assets/data-files/summary_table.csv', 'w') as summary_table_file:
+    with open('output_data/summary_table.csv', 'w') as summary_table_file:
         writer = csv.writer(summary_table_file)
         writer.writerow(['Feature', 'Count'])
         writer.writerows(summary_data)
@@ -323,6 +325,19 @@ def proteome_compare(result, reference):
     return(len(intact_proteins.intersection(up_proteins)))
 
 if __name__ == "__main__":
-    connection = Connector("bolt://intact-neo4j-001.ebi.ac.uk:7687", "neo4j", "neo4j123")
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument('--database', help='Provide the neo4j database to connect to.')
+    # parser.add_argument('--user', help='Provide the user name for the database connection.')
+    # parser.add_argument('--pw', help='Provide the password for the database connection.')
+    # args = parser.parse_args()
+    # connection = Connector(args.database, args.user, args.pw)
+
+    DATABASE = "bolt://intact-neo4j-001.ebi.ac.uk:7687"
+    USER = "neo4j"
+    PW = "neo4j123"
+    GIT_REP = "statistics_dev"
+    connection = Connector(DATABASE, USER, PW)
+
+
     queries()
     connection.close()
