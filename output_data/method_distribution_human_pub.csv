@@ -1,0 +1,221 @@
+Method_ID,label,amount
+MI:0007,Anti tag coimmunoprecipitation,174638
+MI:0397,Two hybrid array,102527
+MI:1356,Validated two hybrid,86861
+MI:1112,Two hybrid prey pooling approach,71111
+MI:0096,Pull down,60819
+MI:0676,Tandem affinity purification,35700
+MI:0006,Anti bait coimmunoprecipitation,34769
+MI:0398,Two hybrid pooling approach,34622
+MI:1314,Proximity-dependent biotin identification,28116
+MI:0018,Two hybrid,18741
+MI:0030,Cross-linking study,13711
+MI:2222,Inference by socio-affinity scoring,4905
+MI:0004,Affinity chromatography technology,4775
+MI:0424,Protein kinase assay,2893
+MI:0084,Phage display,2876
+MI:0399,Two hybrid fragment pooling approach,2777
+MI:0729,Luminescence based mammalian interactome mapping,2747
+MI:0071,Molecular sieving,2594
+MI:0107,Surface plasmon resonance,2586
+MI:0114,X-ray crystallography,2391
+MI:0402,Chromatin immunoprecipitation assay,2363
+MI:0112,Ubiquitin reconstruction,2285
+MI:0053,Fluorescence polarization spectroscopy,2212
+MI:0081,Peptide array,2183
+MI:0432,One hybrid,2178
+MI:0416,Fluorescence microscopy,2019
+MI:0663,Confocal microscopy,1999
+MI:0019,Coimmunoprecipitation,1885
+MI:0089,Protein array,1752
+MI:0410,3d electron microscopy,1629
+MI:1203,Split luciferase complementation,1594
+MI:0411,Enzyme linked immunosorbent assay,1353
+MI:0809,Bimolecular fluorescence complementation,1331
+MI:0813,Proximity ligation assay,1292
+MI:0065,Isothermal titration calorimetry,1100
+MI:0400,Affinity technology,1053
+MI:0034,Display technology,961
+MI:2215,Barcode fusion genetics two hybrid,900
+MI:0029,Cosedimentation through density gradient,860
+MI:0077,Nuclear magnetic resonance,855
+MI:0055,Fluorescent resonance energy transfer,787
+MI:2289,Virotrap,752
+MI:0049,Filter binding,686
+MI:0435,Protease assay,653
+MI:1113,Two hybrid bait and prey pooling approach,628
+MI:0047,Far western blotting,577
+MI:0997,Ubiquitinase assay,558
+MI:0231,Mammalian protein protein interaction trap,551
+MI:0415,Enzymatic study,507
+MI:0892,Solid phase assay,483
+MI:0012,Bioluminescence resonance energy transfer,471
+MI:0434,Phosphatase assay,451
+MI:0413,Electrophoretic mobility shift assay,445
+MI:0028,Cosedimentation in solution,431
+MI:1313,Proximity labelling technology,411
+MI:0405,Competition binding,385
+MI:0428,Imaging technique,333
+MI:0276,Blue native page,327
+MI:0040,Electron microscopy,316
+MI:0054,Fluorescence-activated cell sorting,304
+MI:0412,Electrophoretic mobility supershift assay,294
+MI:0097,Reverse ras recruitment system,266
+MI:0051,Fluorescence technology,265
+MI:0226,Ion exchange chromatography,253
+MI:2339,Electron microscopy 3d single particle reconstruction,251
+MI:0020,Transmission electron microscopy,248
+MI:0404,Comigration in non denaturing gel electrophoresis,239
+MI:0090,Protein complementation assay,239
+MI:0808,Comigration in sds page,237
+MI:0099,Scintillation proximity assay,222
+MI:0017,Classical fluorescence spectroscopy,220
+MI:0969,Bio-layer interferometry,210
+MI:0027,Cosedimentation,203
+MI:0900,P8 filamentous phage display,194
+MI:0069,Mass spectrometry studies of complexes,191
+MI:0826,X ray scattering,187
+MI:0990,Cleavage assay,182
+MI:0921,Surface plasmon resonance array,158
+MI:0045,Experimental interaction detection,148
+MI:0401,Biochemical,144
+MI:0067,Light scattering,129
+MI:1017,Rna immunoprecipitation,122
+MI:0225,Chromatin immunoprecipitation array,115
+MI:0091,Chromatography technology,114
+MI:0419,Gtpase assay,112
+MI:0515,Methyltransferase assay,110
+MI:0016,Circular dichroism,102
+MI:0949,Gdp/gtp exchange assay,94
+MI:0008,Array technology,87
+MI:0038,Dynamic light scattering,83
+MI:0728,Gal4 vp16 complementation,80
+MI:0880,Atpase assay,79
+MI:0807,Comigration in gel electrophoresis,78
+MI:0982,Electrophoretic mobility-based method,74
+MI:0872,Atomic force microscopy,68
+MI:0406,Deacetylase assay,67
+MI:0013,Biophysical,66
+MI:1232,Aggregation assay,65
+MI:0979,Oxidoreductase assay,64
+MI:1247,Microscale thermophoresis,64
+MI:0678,Antibody array,64
+MI:0440,Saturation binding,52
+MI:0052,Fluorescence correlation spectroscopy,51
+MI:0889,Acetylase assay,50
+MI:0010,Beta galactosidase complementation,50
+MI:0370,Tox-r dimerization assay,50
+MI:2192,Clip-seq,50
+MI:0104,Static light scattering,49
+MI:0920,Ribonuclease assay,45
+MI:0516,Methyltransferase radiometric assay,45
+MI:0870,Demethylase assay,41
+MI:0841,Phosphotransferase assay,39
+MI:0905,Amplified luminescent proximity homogeneous assay,36
+MI:0727,Lexa b52 complementation,36
+MI:1204,Split firefly luciferase complementation,34
+MI:1103,Solution state nmr,34
+MI:0011,Beta lactamase complementation,33
+MI:0417,Footprinting,33
+MI:0998,Deubiquitinase assay,32
+MI:0588,Three hybrid,29
+MI:0031,Protein cross-linking with a bifunctional reagent,28
+MI:0369,Lex-a dimerization assay,28
+MI:0042,Electron paramagnetic resonance,26
+MI:0092,Protein in situ array,25
+MI:1002,Myristoylase assay,22
+MI:1008,Sumoylase assay,22
+MI:0943,Detection by mass spectrometry,21
+MI:1000,Hydroxylase assay,21
+MI:0605,Enzymatic footprinting,21
+MI:1235,Thermal shift binding,19
+MI:1007,Glycosylase assay,19
+MI:0423,In-gel kinase assay,18
+MI:1219,Enzyme-mediated activation of radical sources,18
+MI:0232,Transcriptional complementation assay,17
+MI:0944,Mass spectrometry study of hydrogen/deuterium exchange,16
+MI:0430,Nucleic acid uv cross-linking assay,16
+MI:0966,Ultraviolet-visible spectroscopy,15
+MI:1311,Differential scanning calorimetry,15
+MI:2189,Avexis,15
+MI:1354,Lipase assay,15
+MI:0510,Homogeneous time resolved fluorescence,15
+MI:1034,Nuclease assay,14
+MI:2169,Luminiscence technology,13
+MI:0655,Lambda repressor two hybrid,13
+MI:1211,Liposome binding assay,13
+MI:1016,Fluorescence recovery after photobleaching,12
+MI:0858,Immunodepleted coimmunoprecipitation,12
+MI:0437,Protein three hybrid,12
+MI:0879,Nucleoside triphosphatase assay,12
+MI:0426,Light microscopy,11
+MI:2197,Probe interaction assay,11
+MI:0968,Biosensor,10
+MI:0512,Zymography,10
+MI:0825,X-ray fiber diffraction,10
+MI:0964,Infrared spectroscopy,10
+MI:0048,Filamentous phage display,9
+MI:1104,Solid state nmr,9
+MI:1036,Nucleotide exchange assay,8
+MI:0984,Deamination assay,7
+MI:1019,Protein phosphatase assay,7
+MI:0115,Yeast display,7
+MI:1309,De-adp-ribosylation assay,6
+MI:0111,Dihydrofolate reductase reconstruction,6
+MI:0916,Lexa vp16 complementation,6
+MI:1246,Ion mobility mass spectrometry of complexes,6
+MI:0227,Reverse phase chromatography,6
+MI:1010,Neddylase assay,6
+MI:2340,Electron microscopy 3d helical reconstruction,5
+MI:0066,Lambda phage display,5
+MI:1022,Field flow fractionation,5
+MI:0953,Polymerization,5
+MI:0947,Bead aggregation assay,4
+MI:1024,Scanning electron microscopy,4
+MI:1312,Aut-page,4
+MI:0859,Force spectroscopy,4
+MI:1147,Ampylation assay,4
+MI:1037,Split renilla luciferase complementation,4
+MI:1086,Equilibrium dialysis,4
+MI:0606,Dnase i footprinting,4
+MI:0899,P3 filamentous phage display,4
+MI:1005,Adp ribosylase assay,3
+MI:0073,Mrna display,3
+MI:2171,Complemented donor-acceptor resonance energy transfer,3
+MI:0108,T7 phage display,3
+MI:2196,Quartz crystal microbalance,3
+MI:0894,Electron diffraction,3
+MI:0963,Interactome parallel affinity capture,3
+MI:0994,Demyristoylase assay,3
+MI:0814,Protease accessibility laddering,3
+MI:0438,Rna three hybrid,3
+MI:1145,Phospholipase assay,3
+MI:0888,Small angle neutron scattering,3
+MI:0991,Lipoprotein cleavage assay,3
+MI:1138,Decarboxylation assay,3
+MI:2404,Oxidase assay,2
+MI:1004,Palmitoylase assay,2
+MI:0726,Reverse two hybrid,2
+MI:0425,Kinase scintillation proximity assay,2
+MI:1137,Carboxylation assay,2
+MI:0254,Genetic interference,2
+MI:2281,Deamidation assay,2
+MI:0928,Filter trap assay,2
+MI:0976,Total internal reflection fluorescence spectroscopy,2
+MI:0420,Kinase homogeneous time resolved fluorescence,2
+MI:0965,2d-infrared spectrometry,2
+MI:0995,Depalmitoylase assay,1
+MI:1088,Phenotype-based detection assay,1
+MI:0095,Proteinchip(r) on a surface-enhanced laser desorption/ionization,1
+MI:1183,Nuclease footprinting,1
+MI:1038,Silicon nanowire field-effect transistor,1
+MI:0824,X-ray powder diffraction,1
+MI:0695,Sandwich immunoassay,1
+MI:0256,Rna interference,1
+MI:0887,Histone acetylase assay,1
+MI:2213,Super-resolution microscopy,1
+MI:1342,Qcmd,1
+MI:2191,Clip,1
+MI:1352,Uracil interference assay,1
+MI:2338,Electron tomography,1
+MI:2318,Force measurement,1
