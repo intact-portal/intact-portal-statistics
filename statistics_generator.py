@@ -330,8 +330,7 @@ if __name__ == "__main__":
     parser.add_argument('--user', help='Provide the user name for the database connection.')
     parser.add_argument('--pw', help='Provide the password for the database connection.')
     args = parser.parse_args()
-    print(args)
-    # connection = Connector(args.database, args.user, args.pw)
+    connection = Connector(args.database, args.user, args.pw)
 
     # "https://www.uniprot.org/uniprot/?query=proteome:UP000005640%20reviewed:yes&format=tab"
     # DATABASE = "bolt://intact-neo4j-001.ebi.ac.uk:7687"
