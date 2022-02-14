@@ -169,24 +169,20 @@ def process_interactions(n_ary_response, binary_response, true_binary_response):
     n_ary = binary = inter = true_binary = 0
     start_day = date(2003, 8, 1)
     delta = date.today() - start_day
-    # n_ary_values = binary_values = true_binary_values = OrderedDict()
     interaction_data = OrderedDict(((start_day + timedelta(days=day)).isoformat(), [0, 0, 0, 0]) for day in range(delta.days + 1))
 
     for i_record in n_ary_response:
         n_ary += i_record[1]
-        # n_ary_values[i_record[0].iso_format()] = n_ary
         interaction_data[i_record[0].iso_format()][0] = n_ary
 
     for b_record in binary_response:
         binary += b_record[1]
         inter += b_record[2]
-        # binary_values[b_record[0].iso_format()] = [binary, inter]
         interaction_data[b_record[0].iso_format()][1] = binary
         interaction_data[b_record[0].iso_format()][2] = inter
 
     for tb_record in true_binary_response:
         true_binary += tb_record[1]
-        # true_binary_values[tb_record[0].iso_format()] = true_binary
         interaction_data[tb_record[0].iso_format()][3] = true_binary
 
     with open('output_data/interactions.csv', 'w') as interactions_file:
@@ -333,17 +329,12 @@ def proteome_compare(result, reference):
     return(len(intact_proteins.intersection(up_proteins)))
 
 if __name__ == "__main__":
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('--database', help='Provide the neo4j database to connect to.')
-    # parser.add_argument('--user', help='Provide the user name for the database connection.')
-    # parser.add_argument('--pw', help='Provide the password for the database connection.')
-    # args = parser.parse_args()
-    # connection = Connector(args.database, args.user, args.pw)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--database', help='Provide the neo4j database to connect to.')
+    parser.add_argument('--user', help='Provide the user name for the database connection.')
+    parser.add_argument('--pw', help='Provide the password for the database connection.')
+    args = parser.parse_args()
+    connection = Connector(args.database, args.user, args.pw)
 
-    DATABASE = "bolt://intact-neo4j-001.ebi.ac.uk:7687"
-    USER = "neo4j"
-    PW = "neo4j123"
-    GIT_REP = "statistics_dev"
-    connection = Connector(DATABASE, USER, PW)
     queries()
     connection.close()
