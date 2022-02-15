@@ -3,20 +3,32 @@
 # Defaults
 USER='neo4j'
 
-while getopts p:r: flag
+Help()
+{
+   # Display Help
+   echo "Description of the required inputs of this script."
+   echo
+   echo "The following inputs are required -p and -r:"
+   echo "r     The desired repository - 'dev' or 'prod'"
+   echo "p     The Neo4J password connected to the repository"
+   echo
+}
+
+while getopts p:r:h: flag
 do
   case "${flag}" in
     p) PW="${OPTARG}" ;;
     r) REPOSITORY="${OPTARG}" ;;
-    \? ) echo "Unknown option: -$OPTARG" >&2; exit 1;;
-    :  ) echo "Missing option argument for -$OPTARG" >&2; exit 1;;
-    *  ) echo "Unimplemented option: -$OPTARG" >&2; exit 1;;
+    h) Help ;;
+    \? ) echo "Unknown option: -$OPTARG, add -h for help" >&2; exit 1 ;;
+    :  ) echo "Missing option argument for -$OPTARG, add -h for help" >&2; exit 1;;
+    *  ) echo "Unimplemented option: -$OPTARG, add -h for help" >&2; exit 1;;
   esac
 done
 
 # Control mandatory arguments
 if [ ! "$PW" ] || [ ! "$REPOSITORY" ]; then
-  echo "arguments -p and -r must be provided"
+  echo "arguments -p and -r must be provided, add -h for help."
   echo >&2; exit 1
 fi
 
