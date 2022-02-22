@@ -49,6 +49,7 @@ elif [[ "$REPOSITORY" == "prod" ]]; then
   GIT_REP="statistics_prod"
 else
   echo "Incorrect argument for -r, add -h for help."
+  exit 1
 fi
 
 # set brench and install requirements
