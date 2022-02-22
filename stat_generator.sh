@@ -3,7 +3,7 @@
 # Defaults
 USER='neo4j'
 
-Help()
+help()
 {
    # Display Help
    echo "Description of the required inputs of this script."
@@ -19,7 +19,7 @@ do
   case "${flag}" in
     p) PW="${OPTARG}" ;;
     r) REPOSITORY="${OPTARG}" ;;
-    h) Help ;;
+    h) help ;;
     \? ) echo "Unknown option: -$OPTARG, add -h for help" >&2; exit 1 ;;
     :  ) echo "Missing option argument for -$OPTARG, add -h for help" >&2; exit 1;;
     *  ) echo "Unimplemented option: -$OPTARG, add -h for help" >&2; exit 1;;
@@ -48,6 +48,7 @@ git checkout ${GIT_REP}
 pip3 install -r requirements.txt
 if [ $? -ne 0 ]; then
   echo "Requirements installation failed, please take a look at the requirements."
+  exit 1
 fi
 
 # Run python script
