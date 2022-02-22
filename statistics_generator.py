@@ -1,4 +1,8 @@
+import argparse
+import sys
 import csv
+import urllib.request
+
 import neo4j
 from neo4j import GraphDatabase
 from collections import OrderedDict
@@ -94,15 +98,15 @@ def queries():
     # METHOD DISTRIBUTION #
     #######################
     # language=cypher
-    method_distribution_query = "MATCH (o:GraphOrganism{taxId:9606})--(p:GraphProtein)--(b:GraphBinaryInteractionEvidence)-[:interactionEvidence]-(i:GraphInteractionEvidence)-[:experiment]-(ex:GraphExperiment)-[int:interactionDetectionMethod]-(c:GraphCvTerm)" \
+    method_distribution_query = "MATCH (b:GraphBinaryInteractionEvidence)-[:interactionEvidence]-(i:GraphInteractionEvidence)-[:experiment]-(ex:GraphExperiment)-[int:interactionDetectionMethod]-(c:GraphCvTerm)" \
                               "RETURN c.mIIdentifier as method, c.fullName as name,  count(distinct b) as evidence ORDER BY evidence desc"
     connection.setQuery(method_distribution_query)
     method_distribution_response = connection.transaction_session()
     method_distribution_result = process_methods(method_distribution_response)
 
-    ########################
+    #######################
     # TOP 10 SPECIES COVER #
-    ########################
+    #######################
     # language=cypher
     species_cover_query = "MATCH (o:GraphOrganism)--(ge:GraphProtein) " \
                           "WHERE Not ge.uniprotName contains \"-PRO\" " \
@@ -185,7 +189,7 @@ def process_interactions(n_ary_response, binary_response, true_binary_response):
         # true_binary_values[tb_record[0].iso_format()] = true_binary
         interaction_data[tb_record[0].iso_format()][3] = true_binary
 
-    with open('./src/assets/data-files/interactions.csv', 'w') as interactions_file:
+    with open('output_data/interactions.csv', 'w') as interactions_file:
         writer1 = csv.writer(interactions_file)
         writer1.writerow(['Date', 'ary_interactions_over_time', 'All_interactions_after_spoke_expension', 'All_interaction_reports', 'Binary_interaction_reports'])
         previous = [0, 0, 0, 0]
@@ -206,7 +210,7 @@ def process_pub_exp(publication_experiment_response):
         experiments += pub_exp.values()[2]
         exp_pub_data[pub_exp.values()[0].iso_format()] = [publications, experiments]
 
-    with open('./src/assets/data-files/publication_experiment.csv', 'w') as publication_experiment_file:
+    with open('output_data/publication_experiment.csv', 'w') as publication_experiment_file:
         writer = csv.writer(publication_experiment_file)
         writer.writerow(['Date', 'Publications', 'Experiments'])
         for key, value in exp_pub_data.items():
@@ -235,7 +239,7 @@ def process_curations(curation_request_response, author_submission_response, all
         all += all_record[1]
         curation_data[datum][2] = all
 
-    with open('./src/assets/data-files/curation_distribution.csv', 'w') as curation_distribution_file:
+    with open('output_data/curation_distribution.csv', 'w') as curation_distribution_file:
         writer3 = csv.writer(curation_distribution_file)
         writer3.writerow(['Date', 'Curation_requested_by_author', 'Author_submitted', 'Curator_choice/Funding_priority'])
         previous = [0, 0, 0]
@@ -256,7 +260,7 @@ def process_methods(method_distribution_response):
         values[1] = method.values()[1].capitalize()
         method_distribution_data.append(values)
 
-    with open('./src/assets/data-files/method_distribution_human_pub.csv', 'w') as method_distribution_file:
+    with open('output_data/method_distribution.csv', 'w') as method_distribution_file:
         writer = csv.writer(method_distribution_file)
         writer.writerow(['Method_ID', 'label', 'amount'])
         writer.writerows(method_distribution_data)
@@ -265,27 +269,20 @@ def process_methods(method_distribution_response):
 
 def process_proteome_coverage(species_cover_response):
     species_cover_data = OrderedDict()
-    proteome_reference = {"Homo sapiens": [20360], "Mus musculus": [17085],
-                          "Arabidopsis thaliana (Mouse-ear cress)": [16058],
-                          "Saccharomyces cerevisiae": [6050],
-                          "Escherichia coli (strain K12)": [4390],
-                          "Drosophila melanogaster (Fruit fly)": [3625],
-                          "Rattus norvegicus (Rat)": [8133],
-                          "Caenorhabditis elegans": [4305],
-                          "Synechocystis sp. (strain PCC 6803  Kazusa)": [1085],
-                          "Campylobacter jejuni subsp. jejuni serotype O:2 (strain NCTC 11168)": [467],
-                          "SARS-CoV-2": [16]}
+    proteome_reference = {}
 
     for organism in species_cover_response:
         organism_name = organism.values()[2].replace('/','')
-        coverage = proteome_compare(organism.values()[1], f'reference_files/{organism_name}_uniprot.csv')
+        reference = reference_proteome(organism_name)
+        proteome_reference[organism_name] = [len(reference)]
+        coverage = proteome_compare(organism.values()[1], reference)
         species_cover_data[organism_name] = [coverage]
     for organism in species_cover_data.keys():
         percentage = species_cover_data[organism][0] / proteome_reference[organism][0] * 100
         proteome_reference[organism].append("{:.2f}".format(percentage))
         proteome_reference[organism].append(species_cover_data[organism][0])
 
-    with open('./src/assets/data-files/species_cover.csv', 'w') as species_cover_file:
+    with open('output_data/species_cover.csv', 'w') as species_cover_file:
         writer = csv.writer(species_cover_file)
         writer.writerow(['Organism', 'Reference', 'Percentage', 'Proteins'])
         for key, value in proteome_reference.items():
@@ -303,19 +300,32 @@ def process_summary_table(summary_table_response):
     for feature in summary_table_response:
         summary_data.append(feature.values())
 
-    with open('./src/assets/data-files/summary_table.csv', 'w') as summary_table_file:
+    with open('output_data/summary_table.csv', 'w') as summary_table_file:
         writer = csv.writer(summary_table_file)
         writer.writerow(['Feature', 'Count'])
         writer.writerows(summary_data)
     return summary_data
 
-def proteome_compare(result, reference):
-    up_proteins = set()
-    intact_proteins = set()
+def reference_proteome(organism):
+    species_id = {"Homo sapiens": 'UP000005640', "Mus musculus": 'UP000000589',
+                          "Arabidopsis thaliana (Mouse-ear cress)": 'UP000006548',
+                          "Saccharomyces cerevisiae": 'UP000002311',
+                          "Escherichia coli (strain K12)": 'UP000000625',
+                          "Drosophila melanogaster (Fruit fly)": 'UP000000803',
+                          "Rattus norvegicus (Rat)": 'UP000002494',
+                          "Caenorhabditis elegans": 'UP000001940',
+                          "Synechocystis sp. (strain PCC 6803  Kazusa)": 'UP000001425',
+                          "Campylobacter jejuni subsp. jejuni serotype O:2 (strain NCTC 11168)": 'UP000000799',
+                          "SARS-CoV-2": 'UP000464024'}
+    id = species_id[organism]
+    with urllib.request.urlopen(f'https://www.uniprot.org/uniprot/?query=proteome:{id}%20reviewed:yes&format=tab') as url_file:
+        proteins = [i.decode('utf-8').split('\t')[0] for i in url_file]
+        proteins.pop(0)
+    return proteins
 
-    with open(reference) as up_file:
-        for line in up_file:
-            up_proteins.add(line.replace('\ufeff', '').replace('\n', ''))
+def proteome_compare(result, reference):
+    up_proteins = set(reference)
+    intact_proteins = set()
 
     for x in result:
         intact_proteins.add(re.sub('\-[0-9]', '', x).replace('\ufeff',''))
@@ -323,6 +333,11 @@ def proteome_compare(result, reference):
     return(len(intact_proteins.intersection(up_proteins)))
 
 if __name__ == "__main__":
-    connection = Connector("bolt://intact-neo4j-001.ebi.ac.uk:7687", "neo4j", "neo4j123")
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--database', help='Provide the neo4j database to connect to.')
+    parser.add_argument('--user', help='Provide the user name for the database connection.')
+    parser.add_argument('--pw', help='Provide the password for the database connection.')
+    args = parser.parse_args()
+    connection = Connector(args.database, args.user, args.pw)
     queries()
     connection.close()
