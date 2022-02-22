@@ -13,7 +13,7 @@ help() {
   echo
 }
 
-while getopts p:r:h: flag; do
+while getopts p:r:h flag; do
   case "${flag}" in
   p) PW="${OPTARG}" ;;
   r) REPOSITORY="${OPTARG}" ;;
