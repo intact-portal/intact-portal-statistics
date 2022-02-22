@@ -14,12 +14,12 @@ Help()
    echo
 }
 
-while getopts p:r:h: flag
+while getopts :p:r:h flag
 do
   case "${flag}" in
     p) PW="${OPTARG}" ;;
     r) REPOSITORY="${OPTARG}" ;;
-    h) Help ;;
+    h) Help exit;;
     \? ) echo "Unknown option: -$OPTARG, add -h for help" >&2; exit 1 ;;
     :  ) echo "Missing option argument for -$OPTARG, add -h for help" >&2; exit 1;;
     *  ) echo "Unimplemented option: -$OPTARG, add -h for help" >&2; exit 1;;
