@@ -52,13 +52,8 @@ else
   exit 1
 fi
 
-# set brench and install requirements
+# set branch and install requirements
 git checkout ${GIT_REP}
-if [ $? -ne 0 ]; then
-  echo "Could not checkout to the appropriate branch"
-  exit 1
-fi
-
 pip3 install -r requirements.txt
 if [ $? -ne 0 ]; then
   echo "Requirements installation failed, please take a look at the requirements."
@@ -66,7 +61,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Run python script
-python3 statistics_generator.py --database ${DATABASE} --user ${USER} --pw ${PW}
+python3 statistics_generator.py --database ${DATABASE} --user ${USER} --pw "${PW}"
 if [ $? -eq 0 ]; then
   echo "Script executed successfully"
   git add .
