@@ -29,13 +29,14 @@ class Query:
 
     def run(self):
         self.interaction_distribution()
-        self.publication_and_exepriments()
+        self.publication_and_experiments()
         self.curation_source_distribution()
         self.method_distribution()
         self.species_cover()
         self.summary_table()
 
     def interaction_distribution(self):
+        print("Interaction distribution query")
         # language=cypher
         n_ary_response = self.c.transaction_session('''
         MATCH (i:GraphInteractionEvidence)--(b:GraphBinaryInteractionEvidence)
@@ -61,6 +62,7 @@ class Query:
         process_interactions(n_ary_response, binary_response, true_binary_response)
 
     def publication_and_experiments(self):
+        print("Publication and experiments query")
         # language=cypher
         process_pub_exp(self.c.transaction_session('''
         MATCH (p:GraphPublication)-->(e:GraphExperiment)
@@ -69,6 +71,7 @@ class Query:
         '''))
 
     def curation_source_distribution(self):
+        print("Curation source distribution query")
         # language=cypher
         curation_request_response = self.c.transaction_session('''
         MATCH(b:GraphBinaryInteractionEvidence)--(i:GraphInteractionEvidence)--(ex:GraphExperiment)--(p:GraphPublication)
@@ -93,6 +96,7 @@ class Query:
         process_curations(curation_request_response, author_submission_response, all_curations_response)
 
     def method_distribution(self):
+        print("Method distribution query")
         # language=cypher
         process_methods(self.c.transaction_session('''
         MATCH(b:GraphBinaryInteractionEvidence)-[:interactionEvidence]-(i:GraphInteractionEvidence)
@@ -102,8 +106,9 @@ class Query:
         '''))
 
     def species_cover(self):
+        print("Species cover query")
         # language=cypher
-        process_proteome_coverage(self.c.transaction_session('''
+        process_species_coverage(self.c.transaction_session('''
         MATCH (o:GraphOrganism)--(ge:GraphProtein)
           WHERE NOT ge.uniprotName CONTAINS '-PRO'
         RETURN count(DISTINCT ge.uniprotName) AS proteins, collect(DISTINCT ge.uniprotName) AS upGene,
@@ -117,6 +122,7 @@ class Query:
         '''))
 
     def summary_table(self):
+        print("Summary table query")
         # language=cypher
         process_summary_table(self.c.transaction_session('''
         MATCH (c:GraphCvTerm)
@@ -149,6 +155,7 @@ class Query:
 
 
 def process_interactions(n_ary_response, binary_response, true_binary_response):
+    print("Interaction distribution process")
     n_ary = binary = inter = true_binary = 0
     start_day = date(2003, 8, 1)
     delta = date.today() - start_day
@@ -182,10 +189,9 @@ def process_interactions(n_ary_response, binary_response, true_binary_response):
             writer1.writerow([key, *value])
             previous = value
 
-    return interaction_data
-
 
 def process_pub_exp(publication_experiment_response):
+    print("Publication and experiments process")
     exp_pub_data = OrderedDict()
     publications = experiments = 0
     for pub_exp in publication_experiment_response:
@@ -199,10 +205,9 @@ def process_pub_exp(publication_experiment_response):
         for key, value in exp_pub_data.items():
             writer.writerow([key, *value])
 
-    return exp_pub_data
-
 
 def process_curations(curation_request_response, author_submission_response, all_curations_response):
+    print("Curation source distribution process")
     start_day = date(2003, 1, 1)
     delta = date.today() - start_day
     request = author = total = 0
@@ -236,10 +241,9 @@ def process_curations(curation_request_response, author_submission_response, all
             writer3.writerow([key, *value])
             previous = value
 
-    return curation_data
-
 
 def process_methods(method_distribution_response):
+    print("Method distribution process")
     method_distribution_data = []
     for method in method_distribution_response:
         values = [i for i in method.values()]
@@ -251,10 +255,9 @@ def process_methods(method_distribution_response):
         writer.writerow(['Method_ID', 'label', 'amount'])
         writer.writerows(method_distribution_data)
 
-    return method_distribution_data
 
-
-def process_proteome_coverage(species_cover_response):
+def process_species_coverage(species_cover_response):
+    print("Species cover process")
     species_cover_data = OrderedDict()
     proteome_reference: Dict[str, List[Union[str, int]]] = {}
 
@@ -280,10 +283,9 @@ def process_proteome_coverage(species_cover_response):
             full_data_list.insert(0, short_name)
             writer.writerow(full_data_list)
 
-    return species_cover_data
-
 
 def process_summary_table(summary_table_response):
+    print("Summary table process")
     summary_data = []
     for feature in summary_table_response:
         summary_data.append(feature.values())
@@ -292,7 +294,6 @@ def process_summary_table(summary_table_response):
         writer = csv.writer(summary_table_file)
         writer.writerow(['Feature', 'Count'])
         writer.writerows(summary_data)
-    return summary_data
 
 
 def reference_proteome(organism):
