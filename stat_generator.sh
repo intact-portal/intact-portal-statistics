@@ -3,33 +3,41 @@
 # Defaults
 USER='neo4j'
 
-help()
-{
-   # Display Help
-   echo "Description of the required inputs of this script."
-   echo
-   echo "The following inputs are required -p and -r:"
-   echo "r     The desired repository - 'dev' or 'prod'"
-   echo "p     The Neo4J password connected to the repository"
-   echo
+help() {
+  # Display Help
+  echo "Description of the required inputs of this script."
+  echo
+  echo "The following inputs are required -p and -r:"
+  echo "r     The desired repository - 'dev' or 'prod'"
+  echo "p     The Neo4J password connected to the repository"
+  echo
 }
 
-while getopts p:r:h: flag
-do
+while getopts p:r:h: flag; do
   case "${flag}" in
-    p) PW="${OPTARG}" ;;
-    r) REPOSITORY="${OPTARG}" ;;
-    h) help ;;
-    \? ) echo "Unknown option: -$OPTARG, add -h for help" >&2; exit 1 ;;
-    :  ) echo "Missing option argument for -$OPTARG, add -h for help" >&2; exit 1;;
-    *  ) echo "Unimplemented option: -$OPTARG, add -h for help" >&2; exit 1;;
+  p) PW="${OPTARG}" ;;
+  r) REPOSITORY="${OPTARG}" ;;
+  h) help ;;
+  \?)
+    echo "Unknown option: -$OPTARG, add -h for help" >&2
+    exit 1
+    ;;
+  :)
+    echo "Missing option argument for -$OPTARG, add -h for help" >&2
+    exit 1
+    ;;
+  *)
+    echo "Unimplemented option: -$OPTARG, add -h for help" >&2
+    exit 1
+    ;;
   esac
 done
 
 # Control mandatory arguments
 if [ ! "$PW" ] || [ ! "$REPOSITORY" ]; then
   echo "arguments -p and -r must be provided, add -h for help."
-  echo >&2; exit 1
+  echo >&2
+  exit 1
 fi
 
 # Check what repository to use, dev or prod. And set the correct database and branch for it
