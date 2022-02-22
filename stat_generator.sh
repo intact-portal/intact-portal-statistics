@@ -8,8 +8,8 @@ help() {
   echo "Description of the required inputs of this script."
   echo
   echo "The following inputs are required -p and -r:"
-  echo "-r     The desired repository - 'dev' or 'prod'"
-  echo "-p     The Neo4J password connected to the repository"
+  echo "r     The desired repository - 'dev' or 'prod'"
+  echo "p     The Neo4J password connected to the repository"
   echo
 }
 
@@ -44,11 +44,11 @@ fi
 if [[ "$REPOSITORY" == "dev" ]]; then
   DATABASE="bolt://intact-neo4j-001.ebi.ac.uk:7687"
   GIT_REP="statistics_dev"
-fi
-
-if [[ "$REPOSITORY" == "prod" ]]; then
+elif [[ "$REPOSITORY" == "prod" ]]; then
   DATABASE="bolt://intact-neo4j-003.ebi.ac.uk:7687"
   GIT_REP="statistics_prod"
+else
+  echo "Incorrect argument for -r, add -h for help."
 fi
 
 # set brench and install requirements
