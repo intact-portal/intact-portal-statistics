@@ -5,6 +5,7 @@ import urllib.request
 from collections import OrderedDict
 from datetime import date, timedelta
 from typing import Union, Dict, List
+import os
 
 from neo4j import GraphDatabase
 
@@ -12,175 +13,139 @@ from neo4j import GraphDatabase
 class Connector:
     def __init__(self, uri, user, password):
         self.driver = GraphDatabase.driver(uri, auth=(user, password))
-        self.query = ""
 
     def close(self):
         self.driver.close()
 
-    def transaction_session(self):
+    def transaction_session(self, query):
         with self.driver.session() as session:
-            query_result = session.write_transaction(lambda tx: [row for row in tx.run(self.query)])
+            query_result = session.write_transaction(lambda tx: [row for row in tx.run(query)])
             return query_result
 
 
-def queries(c: Connector):
-    #############################
-    # INTERACTIONS DISTRIBUTION #
-    #############################
+class Query:
+    def __init__(self, c: Connector):
+        self.c = c
 
-    # language=cypher
-    n_ary_query = '''
-    MATCH (i:GraphInteractionEvidence)--(b:GraphBinaryInteractionEvidence)
-    WITH i, COUNT(*) AS n
-      WHERE n > 1
-    RETURN date(dateTime(i.createdDate)) AS date, count(i) AS amount
-      ORDER BY date
-  '''
-    c.query = n_ary_query
-    n_ary_response = c.transaction_session()
+    def run(self):
+        self.interaction_distribution()
+        self.publication_and_exepriments()
+        self.curation_source_distribution()
+        self.method_distribution()
+        self.species_cover()
+        self.summary_table()
 
-    # language=cypher
-    binary_query = '''
-    MATCH (i:GraphInteractionEvidence)--(b:GraphBinaryInteractionEvidence)
-    RETURN date(dateTime(b.createdDate)) AS date, count(DISTINCT b), count(DISTINCT i) 
-      ORDER BY date
-'''
-    c.query = binary_query
-    binary_response = c.transaction_session()
+    def interaction_distribution(self):
+        # language=cypher
+        n_ary_response = self.c.transaction_session('''
+        MATCH (i:GraphInteractionEvidence)--(b:GraphBinaryInteractionEvidence)
+        WITH i, COUNT(*) AS n
+          WHERE n > 1
+        RETURN date(dateTime(i.createdDate)) AS date, count(i) AS amount
+          ORDER BY date
+      ''')
+        # language=cypher
+        binary_response = self.c.transaction_session('''
+        MATCH (i:GraphInteractionEvidence)--(b:GraphBinaryInteractionEvidence)
+        RETURN date(dateTime(b.createdDate)) AS date, count(DISTINCT b), count(DISTINCT i) 
+          ORDER BY date
+    ''')
+        # language=cypher
+        true_binary_response = self.c.transaction_session('''
+        MATCH (i:GraphInteractionEvidence)--(b:GraphBinaryInteractionEvidence)
+        WITH i, COUNT(*) AS n
+          WHERE n = 1
+        RETURN date(dateTime(i.createdDate)) AS date, count(i) AS amount
+          ORDER BY date
+        ''')
+        process_interactions(n_ary_response, binary_response, true_binary_response)
 
-    # language=cypher
-    true_binary_query = '''
-    MATCH (i:GraphInteractionEvidence)--(b:GraphBinaryInteractionEvidence)
-    WITH i, COUNT(*) AS n
-      WHERE n = 1
-    RETURN date(dateTime(i.createdDate)) AS date, count(i) AS amount
-      ORDER BY date
-    '''
-    c.query = true_binary_query
-    true_binary_response = c.transaction_session()
+    def publication_and_experiments(self):
+        # language=cypher
+        process_pub_exp(self.c.transaction_session('''
+        MATCH (p:GraphPublication)-->(e:GraphExperiment)
+        RETURN date(datetime(p.releasedDate)) AS date, count(DISTINCT p) AS Publications, count(DISTINCT e) AS Experiments
+            ORDER BY date
+        '''))
 
-    interaction_distribution_result = process_interactions(n_ary_response, binary_response, true_binary_response)
+    def curation_source_distribution(self):
+        # language=cypher
+        curation_request_response = self.c.transaction_session('''
+        MATCH(b:GraphBinaryInteractionEvidence)--(i:GraphInteractionEvidence)--(ex:GraphExperiment)--(p:GraphPublication)
+          --(a:GraphAnnotation)-[:topic]-(c:GraphCvTerm {shortName: 'curation request'})
+        RETURN date(dateTime(b.createdDate)) AS date, count(DISTINCT b) AS evidence
+          ORDER BY date
+        ''')
+        # language=cypher
+        author_submission_response = self.c.transaction_session('''
+        MATCH(b:GraphBinaryInteractionEvidence)--(i:GraphInteractionEvidence)--(ex:GraphExperiment)--(p:GraphPublication)
+             --(a:GraphAnnotation)-[:topic]-(c:GraphCvTerm {shortName: 'author submitted'})
+        RETURN date(dateTime(b.createdDate)) AS date, count(DISTINCT b) AS evidence
+          ORDER BY date
+        ''')
+        # language=cypher
+        all_curations_response = self.c.transaction_session('''
+        MATCH (i:GraphInteractionEvidence)--(b:GraphBinaryInteractionEvidence)
+        RETURN date(dateTime(b.createdDate)) AS date, count(DISTINCT b), count(DISTINCT i)
+          ORDER BY date
+        ''')
 
-    ##############################
-    # PUBLICATIONS - EXPERIMENTS #
-    ##############################
-    # language=cypher
-    publication_experiment_query = '''
-    MATCH (p:GraphPublication)-->(e:GraphExperiment)
-    RETURN date(datetime(p.releasedDate)) AS date, count(DISTINCT p) AS Publications, count(DISTINCT e) AS Experiments
-        ORDER BY date
-    '''
-    c.query = publication_experiment_query
-    publication_experiment_response = c.transaction_session()
-    publication_experiment_result = process_pub_exp(publication_experiment_response)
+        process_curations(curation_request_response, author_submission_response, all_curations_response)
 
-    ################################
-    # CURATION SOURCE DISTRIBUTION #
-    ################################
-    # language=cypher
-    curation_request_query = '''
-    MATCH(b:GraphBinaryInteractionEvidence)--(i:GraphInteractionEvidence)--(ex:GraphExperiment)--(p:GraphPublication)
-      --(a:GraphAnnotation)-[:topic]-(c:GraphCvTerm {shortName: 'curation request'})
-    RETURN date(dateTime(b.createdDate)) AS date, count(DISTINCT b) AS evidence
-      ORDER BY date
-    '''
-    c.query = curation_request_query
-    curation_request_response = c.transaction_session()
+    def method_distribution(self):
+        # language=cypher
+        process_methods(self.c.transaction_session('''
+        MATCH(b:GraphBinaryInteractionEvidence)-[:interactionEvidence]-(i:GraphInteractionEvidence)
+               -[:experiment]-(ex:GraphExperiment)-[int:interactionDetectionMethod]-(c:GraphCvTerm)
+        RETURN c.mIIdentifier AS method, c.fullName AS name, count(DISTINCT b) AS evidence
+          ORDER BY evidence DESC
+        '''))
 
-    # language=cypher
-    author_submission_query = '''
-    MATCH(b:GraphBinaryInteractionEvidence)--(i:GraphInteractionEvidence)--(ex:GraphExperiment)--(p:GraphPublication)
-         --(a:GraphAnnotation)-[:topic]-(c:GraphCvTerm {shortName: 'author submitted'})
-    RETURN date(dateTime(b.createdDate)) AS date, count(DISTINCT b) AS evidence
-      ORDER BY date
-    '''
-    c.query = author_submission_query
-    author_submission_response = c.transaction_session()
+    def species_cover(self):
+        # language=cypher
+        process_proteome_coverage(self.c.transaction_session('''
+        MATCH (o:GraphOrganism)--(ge:GraphProtein)
+          WHERE NOT ge.uniprotName CONTAINS '-PRO'
+        RETURN count(DISTINCT ge.uniprotName) AS proteins, collect(DISTINCT ge.uniprotName) AS upGene,
+            o.scientificName AS name
+          ORDER BY proteins DESC
+          LIMIT 10 UNION
+        MATCH (o:GraphOrganism {taxId: 2697049})--(ge:GraphProtein)
+          WHERE NOT ge.uniprotName CONTAINS '-PRO'
+        RETURN count(DISTINCT ge.uniprotName) AS proteins, collect(DISTINCT ge.uniprotName) AS upGene,
+            o.scientificName AS name
+        '''))
 
-    # language=cypher
-    all_curations_query = '''
-    MATCH (i:GraphInteractionEvidence)--(b:GraphBinaryInteractionEvidence)
-    RETURN date(dateTime(b.createdDate)) AS date, count(DISTINCT b), count(DISTINCT i)
-      ORDER BY date
-    '''
-    c.query = all_curations_query
-    all_curations_response = c.transaction_session()
-
-    curation_source_result = process_curations(curation_request_response, author_submission_response,
-                                               all_curations_response)
-
-    #######################
-    # METHOD DISTRIBUTION #
-    #######################
-    # language=cypher
-    method_distribution_query = '''
-    MATCH(b:GraphBinaryInteractionEvidence)-[:interactionEvidence]-(i:GraphInteractionEvidence)
-           -[:experiment]-(ex:GraphExperiment)-[int:interactionDetectionMethod]-(c:GraphCvTerm)
-    RETURN c.mIIdentifier AS method, c.fullName AS name, count(DISTINCT b) AS evidence
-      ORDER BY evidence DESC
-    '''
-    c.query = method_distribution_query
-    method_distribution_response = c.transaction_session()
-    method_distribution_result = process_methods(method_distribution_response)
-
-    #######################
-    # TOP 10 SPECIES COVER #
-    #######################
-    # language=cypher
-    species_cover_query = '''
-    MATCH (o:GraphOrganism)--(ge:GraphProtein)
-      WHERE NOT ge.uniprotName CONTAINS '-PRO'
-    RETURN count(DISTINCT ge.uniprotName) AS proteins, collect(DISTINCT ge.uniprotName) AS upGene,
-        o.scientificName AS name
-      ORDER BY proteins DESC
-      LIMIT 10 UNION
-    MATCH (o:GraphOrganism {taxId: 2697049})--(ge:GraphProtein)
-      WHERE NOT ge.uniprotName CONTAINS '-PRO'
-    RETURN count(DISTINCT ge.uniprotName) AS proteins, collect(DISTINCT ge.uniprotName) AS upGene,
-        o.scientificName AS name
-    '''
-    c.query = species_cover_query
-    species_cover_response = c.transaction_session()
-    species_cover_result = process_proteome_coverage(species_cover_response)
-
-    #################
-    # SUMMARY TABLE #
-    #################
-    # language=cypher
-    summary_table_query = '''
-    MATCH (c:GraphCvTerm)
-    RETURN 'Controlled Vocabulary Terms' AS name, count(DISTINCT c) AS amount UNION
-    MATCH (p:GraphPublication)
-    RETURN 'Publications' AS name, count(DISTINCT p) AS amount UNION
-    MATCH (b:GraphBinaryInteractionEvidence)
-    RETURN 'Binary Interactions' AS name, count(DISTINCT b) AS amount UNION
-    MATCH (i:GraphInteractor)
-    RETURN 'Interactors' AS name, count(DISTINCT i) AS amount UNION
-    MATCH (f:GraphFeature)-[t:type]-(c:GraphCvTerm)
-      WHERE c.mIIdentifier IN ['MI:0118', 'MI:0119', 'MI:0573', 'MI:1129', 'MI:0429', 'MI:1128', 'MI:1133', 'MI:1130',
-        'MI:2333', 'MI:0382', 'MI:1132', 'MI:1131', 'MI:2226', 'MI:2227']
-    RETURN 'Mutation features' AS name, count(DISTINCT f) AS amount UNION
-    MATCH (ie:GraphInteractionEvidence)
-    RETURN 'Interactions' AS name, count(DISTINCT ie) AS amount UNION
-    MATCH (ex:GraphExperiment)
-    RETURN 'Experiments' AS name, count(DISTINCT ex) AS amount UNION
-    MATCH (o:GraphOrganism)
-    RETURN 'Organisms' AS name, count(DISTINCT o) AS amount UNION
-    MATCH (ex:GraphExperiment)-[int:interactionDetectionMethod]-(c:GraphCvTerm)
-    RETURN 'Interaction Dectection Methods' AS name, count(DISTINCT c.mIIdentifier) AS amount UNION
-    MATCH (ge:GraphGene)
-    RETURN 'Genes' AS name, count(DISTINCT ge) AS amount UNION
-    MATCH (pro:GraphProtein)
-    RETURN 'Proteins' AS name, count(DISTINCT pro) AS amount UNION
-    MATCH (nu:GraphNucleicAcid)
-    RETURN 'Nucleic Acids' AS name, count(DISTINCT nu) AS amount 
-    '''
-    c.query = summary_table_query
-    summary_table_response = c.transaction_session()
-    summary_table_result = process_summary_table(summary_table_response)
-
-    return interaction_distribution_result, publication_experiment_result, curation_source_result, \
-           method_distribution_result, species_cover_result, summary_table_result
+    def summary_table(self):
+        # language=cypher
+        process_summary_table(self.c.transaction_session('''
+        MATCH (c:GraphCvTerm)
+        RETURN 'Controlled Vocabulary Terms' AS name, count(DISTINCT c) AS amount UNION
+        MATCH (p:GraphPublication)
+        RETURN 'Publications' AS name, count(DISTINCT p) AS amount UNION
+        MATCH (b:GraphBinaryInteractionEvidence)
+        RETURN 'Binary Interactions' AS name, count(DISTINCT b) AS amount UNION
+        MATCH (i:GraphInteractor)
+        RETURN 'Interactors' AS name, count(DISTINCT i) AS amount UNION
+        MATCH (f:GraphFeature)-[t:type]-(c:GraphCvTerm)
+          WHERE c.mIIdentifier IN ['MI:0118', 'MI:0119', 'MI:0573', 'MI:1129', 'MI:0429', 'MI:1128', 'MI:1133', 'MI:1130',
+            'MI:2333', 'MI:0382', 'MI:1132', 'MI:1131', 'MI:2226', 'MI:2227']
+        RETURN 'Mutation features' AS name, count(DISTINCT f) AS amount UNION
+        MATCH (ie:GraphInteractionEvidence)
+        RETURN 'Interactions' AS name, count(DISTINCT ie) AS amount UNION
+        MATCH (ex:GraphExperiment)
+        RETURN 'Experiments' AS name, count(DISTINCT ex) AS amount UNION
+        MATCH (o:GraphOrganism)
+        RETURN 'Organisms' AS name, count(DISTINCT o) AS amount UNION
+        MATCH (ex:GraphExperiment)-[int:interactionDetectionMethod]-(c:GraphCvTerm)
+        RETURN 'Interaction Dectection Methods' AS name, count(DISTINCT c.mIIdentifier) AS amount UNION
+        MATCH (ge:GraphGene)
+        RETURN 'Genes' AS name, count(DISTINCT ge) AS amount UNION
+        MATCH (pro:GraphProtein)
+        RETURN 'Proteins' AS name, count(DISTINCT pro) AS amount UNION
+        MATCH (nu:GraphNucleicAcid)
+        RETURN 'Nucleic Acids' AS name, count(DISTINCT nu) AS amount 
+        '''))
 
 
 def process_interactions(n_ary_response, binary_response, true_binary_response):
@@ -359,12 +324,20 @@ def proteome_compare(result, reference):
     return len(intact_proteins.intersection(up_proteins))
 
 
+def initialise_output():
+    path = 'output_data'
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--database', help='Provide the neo4j database to connect to.')
     parser.add_argument('--user', help='Provide the user name for the database connection.')
     parser.add_argument('--pw', help='Provide the password for the database connection.')
     args = parser.parse_args()
+
+    initialise_output()
     connection = Connector(args.database, args.user, args.pw)
-    queries(connection)
+    Query(connection).run()
     connection.close()
