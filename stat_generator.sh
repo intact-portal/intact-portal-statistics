@@ -70,7 +70,6 @@ if [ $? -eq 0 ]; then
   git push
 else
   echo "Script exited with an error." >&2
-  exit 1
 fi
 
 git checkout main
