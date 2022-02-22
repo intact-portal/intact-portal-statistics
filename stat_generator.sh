@@ -53,6 +53,11 @@ fi
 
 # set brench and install requirements
 git checkout ${GIT_REP}
+if [ $? -ne 0 ]; then
+  echo "Could not checkout to the appropriate branch"
+  exit 1
+fi
+
 pip3 install -r requirements.txt
 if [ $? -ne 0 ]; then
   echo "Requirements installation failed, please take a look at the requirements."
