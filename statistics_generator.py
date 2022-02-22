@@ -333,17 +333,11 @@ def proteome_compare(result, reference):
     return(len(intact_proteins.intersection(up_proteins)))
 
 if __name__ == "__main__":
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('--database', help='Provide the neo4j database to connect to.')
-    # parser.add_argument('--user', help='Provide the user name for the database connection.')
-    # parser.add_argument('--pw', help='Provide the password for the database connection.')
-    # args = parser.parse_args()
-    # connection = Connector(args.database, args.user, args.pw)
-
-    DATABASE = "bolt://intact-neo4j-001.ebi.ac.uk:7687"
-    USER = "neo4j"
-    PW = "neo4j123"
-    GIT_REP = "statistics_dev"
-    connection = Connector(DATABASE, USER, PW)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--database', help='Provide the neo4j database to connect to.')
+    parser.add_argument('--user', help='Provide the user name for the database connection.')
+    parser.add_argument('--pw', help='Provide the password for the database connection.')
+    args = parser.parse_args()
+    connection = Connector(args.database, args.user, args.pw)
     queries()
     connection.close()
