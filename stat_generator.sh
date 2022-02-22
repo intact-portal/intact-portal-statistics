@@ -8,12 +8,12 @@ help() {
   echo "Description of the required inputs of this script."
   echo
   echo "The following inputs are required -p and -r:"
-  echo "r     The desired repository - 'dev' or 'prod'"
-  echo "p     The Neo4J password connected to the repository"
+  echo "-r     The desired repository - 'dev' or 'prod'"
+  echo "-p     The Neo4J password connected to the repository"
   echo
 }
 
-while getopts p:r:h: flag; do
+while getopts p:r:h flag; do
   case "${flag}" in
   p) PW="${OPTARG}" ;;
   r) REPOSITORY="${OPTARG}" ;;
