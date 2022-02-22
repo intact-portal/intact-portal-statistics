@@ -65,7 +65,7 @@ python3 statistics_generator.py --database ${DATABASE} --user ${USER} --pw "${PW
 if [ $? -eq 0 ]; then
   echo "Script executed successfully"
   git checkout ${GIT_REP}
-  git add .
+  git merge main
   git commit -a -m "New statistics files added on $(date)"
   git push
 else
