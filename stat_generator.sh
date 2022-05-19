@@ -52,8 +52,8 @@ else
   exit 1
 fi
 
-# set brench and install requirements
-git checkout ${GIT_REP}
+# set branch and install requirements
+
 pip3 install -r requirements.txt
 if [ $? -ne 0 ]; then
   echo "Requirements installation failed, please take a look at the requirements."
@@ -61,9 +61,10 @@ if [ $? -ne 0 ]; then
 fi
 
 # Run python script
-python3 statistics_generator.py --database ${DATABASE} --user ${USER} --pw ${PW}
+python3 statistics_generator.py --database ${DATABASE} --user ${USER} --pw "${PW}"
 if [ $? -eq 0 ]; then
   echo "Script executed successfully"
+  git checkout ${GIT_REP}
   git add .
   git commit -a -m "New statistics files added on $(date)"
   git push
