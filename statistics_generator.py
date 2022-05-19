@@ -179,7 +179,7 @@ def process_interactions(n_ary_response, binary_response, true_binary_response):
     with open('output_data/interactions.csv', 'w') as interactions_file:
         writer1 = csv.writer(interactions_file)
         writer1.writerow(
-            ['Date', 'ary_interactions_over_time', 'All_interactions_after_spoke_expansion', 'All_interaction_reports',
+            ['Date', 'N-ary_interactions_reports', 'All_interactions_after_spoke_expansion', 'All_interaction_reports',
              'Binary_interaction_reports'])
         previous = [0, 0, 0, 0]
         for key, value in interaction_data.items():
