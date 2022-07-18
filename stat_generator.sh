@@ -42,10 +42,10 @@ fi
 
 # Check what repository to use, dev or prod. And set the correct database and branch for it
 if [[ "$REPOSITORY" == "dev" ]]; then
-  DATABASE="bolt://intact-neo4j-001.ebi.ac.uk:7687"
+  DATABASE="bolt://intact-neo4j-001-hl.ebi.ac.uk:7687"
   GIT_REP="statistics_dev"
 elif [[ "$REPOSITORY" == "prod" ]]; then
-  DATABASE="bolt://intact-neo4j-003.ebi.ac.uk:7687"
+  DATABASE="bolt://intact-neo4j-003-hl.ebi.ac.uk:7687"
   GIT_REP="statistics_prod"
 else
   echo "Incorrect argument for -r, add -h for help."
@@ -65,7 +65,7 @@ python3 statistics_generator.py --database ${DATABASE} --user ${USER} --pw "${PW
 if [ $? -eq 0 ]; then
   echo "Script executed successfully"
   git checkout ${GIT_REP}
-  git add .
+  git merge main
   git commit -a -m "New statistics files added on $(date)"
   git push
 else
