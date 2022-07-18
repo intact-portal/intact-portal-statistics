@@ -54,8 +54,8 @@ fi
 
 # set branch and install requirements
 
-
-if pip3 install -r requirements.txt; then
+pip3 install -r requirements.txt
+if [ $? -ne 0 ]; then
   echo "Requirements installation failed, please take a look at the requirements."
   exit 1
 fi
