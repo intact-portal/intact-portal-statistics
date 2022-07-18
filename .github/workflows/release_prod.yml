@@ -23,14 +23,13 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+    - uses: actions/checkout@v3
     - name: Setup Python
       uses: actions/setup-python@v4.1.0
       with:
         # Version range or exact version of Python to use, using SemVer's version range syntax. Reads from .python-version if unset.
-        python-version: 3.6 
+        python-version: 3.x
         # Used to specify a package manager for caching in the default directory. Supported values: pip, pipenv, poetry.
         cache: pip
-    - name: Install dependencies
-      run: pip install -r ../requirements.txt
     - name: Process stats calculations
       run: ../stat_generator.sh -r prod -p ${{ github.event.inputs.password }}
