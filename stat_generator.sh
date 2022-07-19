@@ -72,13 +72,6 @@ if python3 statistics_generator.py --database ${DATABASE} --user ${USER} --pw "$
   exit 0
 else
   echo "Script exited with an error." >&2
-<<<<<<< HEAD
-  exit 1
-fi
-
-git checkout main
-=======
   git checkout main
   exit 1
 fi
->>>>>>> main
