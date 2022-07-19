@@ -340,6 +340,5 @@ if __name__ == "__main__":
 
     initialise_output()
     connection = Connector("bolt://intact-neo4j-003-hl.ebi.ac.uk:7687", "neo4j", "neo4j123")
-    reference_proteome("Homo sapiens")
     Query(connection).run()
     connection.close()
