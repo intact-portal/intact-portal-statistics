@@ -61,16 +61,24 @@ if [ $? -ne 0 ]; then
 fi
 
 # Run python script
-python3 statistics_generator.py --database ${DATABASE} --user ${USER} --pw "${PW}"
-if [ $? -eq 0 ]; then
+
+if python3 statistics_generator.py --database ${DATABASE} --user ${USER} --pw "${PW}"; then
   echo "Script executed successfully"
   git checkout ${GIT_REP}
   git merge main
   git commit -a -m "New statistics files added on $(date)"
   git push
+  git checkout main
+  exit 0
 else
   echo "Script exited with an error." >&2
+<<<<<<< HEAD
   exit 1
 fi
 
 git checkout main
+=======
+  git checkout main
+  exit 1
+fi
+>>>>>>> main

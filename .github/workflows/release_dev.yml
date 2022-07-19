@@ -1,0 +1,37 @@
+# This is a basic workflow that is manually triggered
+
+name: Release dev
+
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
+on:
+  workflow_dispatch:
+    # Inputs the workflow accepts.
+    inputs:
+      password:
+        # Friendly description to be shown in the UI instead of 'name'
+        description: 'Neo4j password'
+        # Input has to be provided for the workflow to run
+        required: true
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "greet"
+  process:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup Python
+      uses: actions/setup-python@v4.1.0
+      with:
+        # Version range or exact version of Python to use, using SemVer's version range syntax. Reads from .python-version if unset.
+        python-version: 3.x
+        # Used to specify a package manager for caching in the default directory. Supported values: pip, pipenv, poetry.
+        cache: pip
+    - name: Log current setup
+      run: pwd; ls; ls ..;
+    - name: Process stats calculations
+      run: ./stat_generator.sh -r dev -p ${{ github.event.inputs.password }}

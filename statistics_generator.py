@@ -308,9 +308,9 @@ def reference_proteome(organism):
                               "Campylobacter jejuni subsp. jejuni serotype O:2 (strain NCTC 11168)": 'UP000000799',
                               "SARS-CoV-2": 'UP000464024'}
     proteome_id = species_to_proteome_id[organism]
-    with urllib.request.urlopen(
-            f'https://www.uniprot.org/uniprot/?query=proteome:{proteome_id}%20reviewed:yes&format=tab') as url_file:
-        proteins = [i.decode('utf-8').split('\t')[0] for i in url_file]
+    with urllib.request.urlopen(f'https://rest.uniprot.org/uniprotkb/stream?format=list&'
+                                f'query=%28proteome%3A{proteome_id}%29%20AND%20%28reviewed%3Atrue%29') as url_file:
+        proteins = [i.decode('utf-8').split('\n')[0] for i in url_file]
         proteins.pop(0)
     return proteins
 
@@ -339,6 +339,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     initialise_output()
-    connection = Connector(args.database, args.user, args.pw)
+    connection = Connector("bolt://intact-neo4j-003-hl.ebi.ac.uk:7687", "neo4j", "neo4j123")
+    reference_proteome("Homo sapiens")
     Query(connection).run()
     connection.close()
