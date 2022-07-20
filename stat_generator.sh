@@ -7,16 +7,18 @@ help() {
   # Display Help
   echo "Description of the required inputs of this script."
   echo
-  echo "The following inputs are required -p and -r:"
+  echo "The following inputs are required -p, -r and -v:"
   echo "r     The desired repository - 'dev' or 'prod'"
   echo "p     The Neo4J password connected to the repository"
+  echo "v     The current release version"
   echo
 }
 
-while getopts p:r:h flag; do
+while getopts p:r:v:h flag; do
   case "${flag}" in
   p) PW="${OPTARG}" ;;
-  r) REPOSITORY="${OPTARG}" ;;
+  r) REPOSITORY="${OPTARG}";;
+  v) RELEASE_VERSION="${OPTARG}";;
   h) help ;;
   \?)
     echo "Unknown option: -$OPTARG, add -h for help" >&2
@@ -34,8 +36,8 @@ while getopts p:r:h flag; do
 done
 
 # Control mandatory arguments
-if [ ! "$PW" ] || [ ! "$REPOSITORY" ]; then
-  echo "arguments -p and -r must be provided, add -h for help."
+if [ ! "$PW" ] || [ ! "$REPOSITORY" ] || [ ! "$RELEASE_VERSION" ]; then
+  echo "arguments -p, -r and -v must be provided, add -h for help."
   echo >&2
   exit 1
 fi
@@ -62,8 +64,9 @@ fi
 
 # Run python script
 
-if python3 statistics_generator.py --database ${DATABASE} --user ${USER} --pw "${PW}"; then
+if python3 statistics_generator.py --database ${DATABASE} --user ${USER} --pw "${PW}" --release "${RELEASE_VERSION}"; then
   echo "Script executed successfully"
+  git add output_data/*
   git checkout ${GIT_REP}
   git merge main
   git commit -a -m "New statistics files added on $(date)"
