@@ -66,6 +66,7 @@ fi
 
 if python3 statistics_generator.py --database ${DATABASE} --user ${USER} --pw "${PW}" --release "${RELEASE_VERSION}"; then
   echo "Script executed successfully"
+  git add output_data/*
   git checkout ${GIT_REP}
   git merge main
   git commit -a -m "New statistics files added on $(date)"
