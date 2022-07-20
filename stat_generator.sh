@@ -17,8 +17,8 @@ help() {
 while getopts p:r:v:h flag; do
   case "${flag}" in
   p) PW="${OPTARG}" ;;
-  r) REPOSITORY="${OPTARG}"; echo "repo ${REPOSITORY}";;
-  v) RELEASE_VERSION="${OPTARG}"; echo "Version ${RELEASE_VERSION}";;
+  r) REPOSITORY="${OPTARG}";;
+  v) RELEASE_VERSION="${OPTARG}";;
   h) help ;;
   \?)
     echo "Unknown option: -$OPTARG, add -h for help" >&2
