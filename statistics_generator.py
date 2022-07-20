@@ -344,8 +344,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     initialise_output()
-    connection = Connector(args.database, args.user, args.pw)
-    Query(connection).run()
-    connection.close()
+    # connection = Connector(args.database, args.user, args.pw)
+    # Query(connection).run()
+    # connection.close()
 
     process_release_number(int(args.release))
