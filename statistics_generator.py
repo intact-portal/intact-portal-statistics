@@ -330,16 +330,22 @@ def initialise_output():
     if not os.path.exists(path):
         os.makedirs(path)
 
+def process_release_number(release_number: int):
+    with open('output_data/release.txt', 'w') as release_file:
+        release_file.write(f"Release {release_number} - {date.today().strftime('%B %Y')}")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--database', help='Provide the neo4j database to connect to.')
     parser.add_argument('--user', help='Provide the user name for the database connection.')
     parser.add_argument('--pw', help='Provide the password for the database connection.')
+    parser.add_argument('--release', help='Provide the release number')
     args = parser.parse_args()
 
     initialise_output()
-    connection = Connector("bolt://intact-neo4j-003-hl.ebi.ac.uk:7687", "neo4j", "neo4j123")
-    reference_proteome("Homo sapiens")
-    Query(connection).run()
-    connection.close()
+    # connection = Connector(args.database, args.user, args.pw)
+    # Query(connection).run()
+    # connection.close()
+
+    process_release_number(int(args.release))
