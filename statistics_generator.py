@@ -19,7 +19,7 @@ class Connector:
 
     def transaction_session(self, query):
         with self.driver.session() as session:
-            query_result = session.write_transaction(lambda tx: [row for row in tx.run(query)])
+            query_result = session.execute_write(lambda tx: [row for row in tx.run(query)])
             return query_result
 
 
