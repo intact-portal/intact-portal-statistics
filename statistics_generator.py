@@ -259,7 +259,7 @@ def process_methods(method_distribution_response):
 def process_species_coverage(species_cover_response):
     print("Species cover process")
     species_cover_data = OrderedDict()
-    proteome_reference: Dict[str, List[Union[str, int]]] = {}
+    proteome_reference: Dict[str, List[Union[str, int]]] = OrderedDict()
 
     for organism in species_cover_response:
         organism_name = organism.values()[2].replace('/', '')
