@@ -1,12 +1,12 @@
 Organism,Reference,Percentage,Proteins
-H. sapiens,20360,86.30,17570
-D. melanogaster,3625,83.61,3031
-M. musculus,17085,44.68,7633
-A. thaliana,16058,37.97,6097
-S. cerevisiae,6050,92.08,5571
-C. elegans,4305,45.97,1979
-R. norvegicus,8133,32.15,2615
-E. coli,4390,74.01,3249
-Synechocystis sp.,1085,63.69,691
-C. jejuni,467,83.73,391
-SARS-CoV-2,16,81.25,13
+H. sapiens,20407,85.89,17528
+Z. mays,843,6.29,53
+D. melanogaster,3687,83.46,3077
+M. musculus,17161,44.86,7698
+A. thaliana,16277,38.59,6281
+S. cerevisiae,6059,92.01,5575
+C. elegans,4449,46.46,2067
+R. norvegicus,8177,32.22,2635
+E. coli,4400,73.84,3249
+Synechocystis sp.,1086,63.72,692
+SARS-CoV-2,16,87.50,14
