@@ -19,7 +19,7 @@ class Connector:
 
     def transaction_session(self, query):
         with self.driver.session() as session:
-            query_result = session.write_transaction(lambda tx: [row for row in tx.run(query)])
+            query_result = session.execute_write(lambda tx: [row for row in tx.run(query)])
             return query_result
 
 
@@ -259,7 +259,7 @@ def process_methods(method_distribution_response):
 def process_species_coverage(species_cover_response):
     print("Species cover process")
     species_cover_data = OrderedDict()
-    proteome_reference: Dict[str, List[Union[str, int]]] = {}
+    proteome_reference: Dict[str, List[Union[str, int]]] = OrderedDict()
 
     for organism in species_cover_response:
         organism_name = organism.values()[2].replace('/', '')
@@ -275,7 +275,8 @@ def process_species_coverage(species_cover_response):
     with open('output_data/species_cover.csv', 'w') as species_cover_file:
         writer = csv.writer(species_cover_file)
         writer.writerow(['Organism', 'Reference', 'Percentage', 'Proteins'])
-        for key, value in proteome_reference.items():
+        # Iterate through items sorted by the reviewed reference proteome size
+        for key, value in sorted(proteome_reference.items(), key=lambda item: item[1][0], reverse=True):
             split = key.split(' ')
             short_name = f'{split[0]}' if split[0] == 'SARS-CoV-2' else f'{split[0]} {split[1]}' \
                 if split[0] == 'Synechocystis' else f'{split[0][0]}. {split[1]}'
@@ -297,16 +298,20 @@ def process_summary_table(summary_table_response):
 
 
 def reference_proteome(organism):
-    species_to_proteome_id = {"Homo sapiens": 'UP000005640', "Mus musculus": 'UP000000589',
-                              "Arabidopsis thaliana (Mouse-ear cress)": 'UP000006548',
-                              "Saccharomyces cerevisiae": 'UP000002311',
-                              "Escherichia coli (strain K12)": 'UP000000625',
-                              "Drosophila melanogaster (Fruit fly)": 'UP000000803',
-                              "Rattus norvegicus (Rat)": 'UP000002494',
-                              "Caenorhabditis elegans": 'UP000001940',
-                              "Synechocystis sp. (strain PCC 6803  Kazusa)": 'UP000001425',
-                              "Campylobacter jejuni subsp. jejuni serotype O:2 (strain NCTC 11168)": 'UP000000799',
-                              "SARS-CoV-2": 'UP000464024'}
+    species_to_proteome_id = {
+        "Homo sapiens": 'UP000005640',
+        "Mus musculus": 'UP000000589',
+        "Arabidopsis thaliana (Mouse-ear cress)": 'UP000006548',
+        "Saccharomyces cerevisiae": 'UP000002311',
+        "Escherichia coli (strain K12)": 'UP000000625',
+        "Drosophila melanogaster (Fruit fly)": 'UP000000803',
+        "Rattus norvegicus (Rat)": 'UP000002494',
+        "Caenorhabditis elegans": 'UP000001940',
+        "Synechocystis sp. (strain PCC 6803  Kazusa)": 'UP000001425',
+        "Campylobacter jejuni subsp. jejuni serotype O:2 (strain NCTC 11168)": 'UP000000799',
+        "SARS-CoV-2": 'UP000464024',
+        "Zea mays (Maize)": 'UP000007305'
+    }
     proteome_id = species_to_proteome_id[organism]
     with urllib.request.urlopen(f'https://rest.uniprot.org/uniprotkb/stream?format=list&'
                                 f'query=%28proteome%3A{proteome_id}%29%20AND%20%28reviewed%3Atrue%29') as url_file:
@@ -344,8 +349,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     initialise_output()
-    # connection = Connector(args.database, args.user, args.pw)
-    # Query(connection).run()
-    # connection.close()
+    connection = Connector(args.database, args.user, args.pw)
+    Query(connection).run()
+    connection.close()
 
     process_release_number(int(args.release))

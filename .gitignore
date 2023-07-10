@@ -129,8 +129,5 @@ dmypy.json
 .pyre/
 
 # PyCharm
-<<<<<<< HEAD
 .idea
-=======
-.idea
->>>>>>> main
+.idea/
