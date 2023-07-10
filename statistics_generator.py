@@ -19,7 +19,7 @@ class Connector:
 
     def transaction_session(self, query):
         with self.driver.session() as session:
-            query_result = session.write_transaction(lambda tx: [row for row in tx.run(query)])
+            query_result = session.execute_write(lambda tx: [row for row in tx.run(query)])
             return query_result
 
 
@@ -275,7 +275,8 @@ def process_species_coverage(species_cover_response):
     with open('output_data/species_cover.csv', 'w') as species_cover_file:
         writer = csv.writer(species_cover_file)
         writer.writerow(['Organism', 'Reference', 'Percentage', 'Proteins'])
-        for key, value in proteome_reference.items():
+        # Iterate through items sorted by the reviewed reference proteome size
+        for key, value in sorted(proteome_reference.items(), key=lambda item: item[1][0], reverse=True):
             split = key.split(' ')
             short_name = f'{split[0]}' if split[0] == 'SARS-CoV-2' else f'{split[0]} {split[1]}' \
                 if split[0] == 'Synechocystis' else f'{split[0][0]}. {split[1]}'
