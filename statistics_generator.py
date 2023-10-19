@@ -28,12 +28,12 @@ class Query:
         self.c = c
 
     def run(self):
-        # self.interaction_distribution()
-        # self.publication_and_experiments()
-        # self.curation_source_distribution()
-        # self.method_distribution()
+        self.interaction_distribution()
+        self.publication_and_experiments()
+        self.curation_source_distribution()
+        self.method_distribution()
         self.species_cover()
-        # self.summary_table()
+        self.summary_table()
 
     def interaction_distribution(self):
         print("Interaction distribution query")
