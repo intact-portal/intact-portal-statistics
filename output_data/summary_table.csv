@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 Feature,Count
 Controlled Vocabulary Terms,4035
 Publications,23170
@@ -12,18 +11,3 @@ Interaction Dectection Methods,245
 Genes,1286
 Proteins,122886
 Nucleic Acids,4728
-=======
-Feature,Count
-Controlled Vocabulary Terms,4047
-Publications,23282
-Binary Interactions,1284582
-Interactors,134510
-Mutation features,79201
-Interactions,805932
-Experiments,74871
-Organisms,3650
-Interaction Dectection Methods,245
-Genes,1286
-Proteins,123071
-Nucleic Acids,4736
->>>>>>> main
