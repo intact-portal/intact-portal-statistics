@@ -62,19 +62,20 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+# Switch branch (to dev or prod branch) before running the script to generate the statistics
+git switch ${GIT_REP}
+
 # Run python script
 
 if python3 statistics_generator.py --database ${DATABASE} --user ${USER} --pw "${PW}" --release "${RELEASE_VERSION}"; then
   echo "Script executed successfully"
   git add output_data/*
-  git checkout ${GIT_REP}
-  git merge main
   git commit -a -m "New statistics files added on $(date)"
   git push
-  git checkout main
+  git switch main
   exit 0
 else
   echo "Script exited with an error." >&2
-  git checkout main
+  git switch main
   exit 1
 fi
