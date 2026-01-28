@@ -1,11 +1,11 @@
 Organism,Reference,Percentage,Proteins
-H. sapiens,20404,89.27,18215
-M. musculus,17233,47.64,8209
-A. thaliana,16320,39.44,6436
-R. norvegicus,8214,33.13,2721
+H. sapiens,20404,89.42,18245
+M. musculus,17233,47.70,8221
+A. thaliana,16320,40.14,6551
+R. norvegicus,8214,33.18,2725
 S. cerevisiae,6065,92.58,5615
 C. elegans,4490,46.41,2084
-E. coli,4401,73.82,3249
+E. coli,4401,73.85,3250
 D. melanogaster,3818,86.41,3299
 Synechocystis sp.,1102,63.61,701
 Z. mays,830,6.87,57
